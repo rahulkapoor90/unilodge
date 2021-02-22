@@ -1,0 +1,16 @@
+/*
+    Bootstrap overrides here
+*/
+$theme-colors: (
+  "primary": #1274C4,
+);
+
+@import 'node_modules/bootstrap/scss/bootstrap';
+@import 'node_modules/bootstrap-vue/src/index.scss';
+
+/*
+    Custom shizz here
+*/
+body {
+    background-color: #FAFAFA;
+}
