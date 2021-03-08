@@ -2,15 +2,17 @@
     Bootstrap overrides here
 */
 $theme-colors: (
-  "primary": #1274C4,
+  "primary": #147bd1,
 );
+$font-stack: Rubik, sans-serif;
 
-@import 'node_modules/bootstrap/scss/bootstrap';
-@import 'node_modules/bootstrap-vue/src/index.scss';
+@import "node_modules/bootstrap/scss/bootstrap";
+@import "node_modules/bootstrap-vue/src/index.scss";
+@import url("https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap");
 
 /*
     Custom shizz here
 */
 body {
-    background-color: #FAFAFA;
+  background-color: #fafafa;
 }
