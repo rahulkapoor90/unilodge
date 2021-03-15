@@ -1,6 +1,6 @@
 module.exports = {
     publicPath: process.env.NODE_ENV === 'production'
-      ? '/quick-pay/'
+      ? '/solutions/quick-pay/'
       : '/',
-    outputDir: 'docs'
+    outputDir: 'dist'
   }

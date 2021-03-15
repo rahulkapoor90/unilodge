@@ -6,8 +6,9 @@ import Complete from './views/Complete.vue'
 Vue.use(VueRouter)
 
 const routes = [
-  { path: '/',  name: 'quick-pay', component: QuickPay },
   { path: '/complete',  name: 'complete', component: Complete },
+  { path: '*',  name: 'quick-pay', component: QuickPay },
+
 ]
 
 const router = new VueRouter({

@@ -6,6 +6,6 @@
 
 <style scoped lang="scss">
   #app {
-    font-family: Helvetica, Arial, sans-serif;
+    font-family: Rubik, sans-serif;
   }
 </style>

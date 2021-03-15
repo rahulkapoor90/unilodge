@@ -25,7 +25,7 @@
                             <dt :key="p.key + '_dt'">{{ p.label }}</dt>
                             <dd :key="p.key + '_dl'">{{ p.value }}</dd>
                         </template>
-                            <dt>Payment Refrerence</dt>
+                            <dt>Payment Reference</dt>
                             <dd>{{ result.reference }}</dd>
                         </dl>
                     </li>
