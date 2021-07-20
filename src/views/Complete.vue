@@ -2,17 +2,16 @@
     <div class="complete">
         <div class="card text-center">
             <div class="card-header">
-                <img src="@/assets/flywire.png" height="20px"/>
             </div>
             <div class="card-body">
                 <img v-if="client.logo" :src="client.logo" :alt="client.name" />
                 <h4>{{ ui.title }}
                   <small class="text-muted">{{ ui.subTitle }}</small>
                 </h4>
-                <div v-if="formattedAmount" class="payment-info" :class="result.status">
+                <div v-if="selectedMethod" class="payment-info" :class="result.status">
                     <h3>
                       <small>Your payment for</small>
-                      {{ formattedAmount }}
+                      {{ selectedMethod.value.total.formatted }}
                       <small v-if="result.status==='success'">was successful!</small>
                       <small v-else-if="result.status==='pending'">must now be sent to Flywire</small>
                       <small v-else>was unsucessful!</small>
@@ -48,7 +47,9 @@ export default {
     computed: {
         ...mapState({
           ui: 'ui',
-          result: 'result'
+          result: 'result',
+          selectedMethod: 'selectedMethod'
+
         }),
         ...mapGetters([
           'formattedAmount',

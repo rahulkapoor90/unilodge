@@ -2,17 +2,16 @@
     <div class="quick-pay">
         <div class="card text-center">
             <div class="card-header">
-                <img src="@/assets/flywire.png" height="20px"/>
             </div>
             <div class="card-body">
                 <img v-if="client.logo" :src="client.logo" :alt="client.name" />
                 <h4>{{ ui.title }}
                   <small class="text-muted">{{ ui.subTitle }}</small>
                 </h4>
-                <div v-if="formattedAmount" class="payment-info">
+                <div v-if="selectedMethod" class="payment-info">
                     <h3>
                       <small>Please pay</small>
-                      {{ formattedAmount }}
+                      {{ selectedMethod.value.total.formatted }}
                     </h3>
                 </div>
                 <div v-if="ui.configErrors.length > 0 || ui.paymentErrors.length > 0" class="errors">
@@ -22,6 +21,19 @@
                     <template v-for="e in ui.paymentErrors">
                         <span :key="e.id">{{ e.msg }}</span>
                     </template>
+                </div>
+                <div>
+                </div>
+                <div v-if="portal" class="payment-method">
+                    <h3>
+                      <small>Select your payment method:</small>
+                    </h3>
+                    <div v-for="paymentMethod in paymentMethods" :key="paymentMethod.description" class="form-check">
+                        <input  v-model="selectedMethod" class="form-check-input" :value="paymentMethod" type="radio">
+                        <label class="form-check-label">
+                            {{ paymentMethod.description }}    
+                        </label>
+                    </div>
                 </div>
                 <ul class="list-group list-group-flush">
                     <li v-if="displayParameters.length > 0" class="list-group-item">
@@ -51,15 +63,24 @@ export default {
         ...mapState({
           ui: 'ui',
           portal: 'portal',
-          payment: 'payment'
+          payment: 'payment',
+          selectedMethod: 'selectedMethod'
         }),
         ...mapGetters([
-          'formattedAmount',
+        //   'formattedAmount',
+          'paymentMethods',
           'client',
           'displayParameters',
           'canPay',
-          'shouldRequestPayerInfo'
-       ])
+       ]),
+       selectedMethod: {
+           get() {
+               return this.$store.state.selectedMethod;
+           },
+           set(value) {
+               this.$store.commit("SET_SELECTED_METHOD", value)
+           }
+       }
     },
     mounted: function() {
       this.$store.dispatch('load');
@@ -74,9 +95,11 @@ export default {
         const config = {
           env: this.portal.env,
           recipientCode: this.portal.portalCode,
-          amount: this.payment.amount,
+          amount: this.selectedMethod.value.total.amount,
           recipientFields: this.payment.parameters,
-          requestPayerInfo: this.shouldRequestPayerInfo,
+          requestPayerInfo: true,
+          requestRecipientInfo: true,
+          skipCompletedSteps: true,
           nonce: new Date().getMilliseconds(),
           firstName: this.payment.firstName,
           lastName: this.payment.lastName,
@@ -86,8 +109,15 @@ export default {
           city: this.payment.city,
           country: this.payment.country,
 
-          callbackUrl: this.payment.callbackUrl,
-          callbackId: this.payment.callbackId,
+          callbackUrl: "https://hooks.zapier.com/hooks/catch/5305195/borwi0j/",
+          callbackId: this.payment.callbackId + `&a[29]=` + this.selectedMethod.value.processing.amount,
+
+          paymentOptionsConfig: {
+              filters: {
+                  type: this.selectedMethod.type,
+                  currency: this.selectedMethod.currency
+              }
+          },
 
           onInvalidInput: (errs) => {
             that.$store.dispatch('paymentSetErrors', errs)
@@ -137,6 +167,15 @@ export default {
         color: white;
         margin: 0 -20px;
         padding: 5px 0;
+    }
+
+    .payment-method{ 
+        margin: 20px;
+        padding: 5px 0;
+    }
+
+    .form-check{
+        text-align: left;
     }
 
     .errors {

@@ -28,5 +28,16 @@
     "sass": "^1.25.0",
     "sass-loader": "^8.0.2",
     "vue-template-compiler": "^2.6.11"
-  }
+  },
+  "description": "Usage:  https://flywire-solutions.github.io/quick-pay/",
+  "main": ".eslintrc.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.gitlab.flywire.tech:michael.pang/quick-pay.git"
+  },
+  "author": "",
+  "license": "ISC"
 }

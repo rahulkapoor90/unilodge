@@ -33,7 +33,9 @@ const initialState = {
     callbackId: null,
     payables: [],
     parameters: {},
+    charges: null,
   },
+  selectedMethod: null,
   result: {
     status: null,
     reference: null,
@@ -42,11 +44,60 @@ const initialState = {
 };
 
 const getters = {
-  formattedAmount: (state) => {
-    return utils.formatAmount(
-      state.payment.amount,
-      state.portal.recipient.currency
-    );
+  // formattedAmount: (state) => {
+  //   return utils.formatAmount(
+  //     state.payment.amount,
+  //     state.portal.recipient.currency
+  //   );
+  // },
+  paymentMethods: (state) => {
+    return [
+      {
+        description: "Pay in your Local Currency",
+        value: {
+          total: {
+            amount: state.payment.amount,
+            formatted: utils.formatAmount(state.payment.amount, state.portal.recipient.currency),
+          },
+          processing: {
+            amount: 0,
+            formatted: null,
+          }
+        },
+        type: ['online', 'credit_card', 'bank_transfer'],
+        currency: ['local']
+      },
+      {
+        description: "Domestic " + state.portal.recipient.currency.code + " Bank Transfer",
+        value: {
+          total: {
+            amount: state.payment.amount + 0.70,
+            formatted: utils.formatAmount(state.payment.amount + 0.70, state.portal.recipient.currency),
+          },
+          processing: {
+            amount: 0.70,
+            formatted: utils.formatAmount(0.70, state.portal.recipient.currency),
+          }
+        },
+        type: ['bank_transfer'],
+        currency: ['foreign']
+      },
+      {
+        description: "Domestic " + state.portal.recipient.currency.code  + " Credit Card",
+        value: {
+          total: {
+            amount: state.payment.amount / 97.25 * 100,
+            formatted: utils.formatAmount(state.payment.amount / 97.25 * 100, state.portal.recipient.currency),
+          },
+          processing: {
+            amount: (state.payment.amount / 97.25 * 100) - state.payment.amount,
+            formatted: utils.formatAmount((state.payment.amount / 97.25 * 100) - state.payment.amount, state.portal.recipient.currency),
+          }
+        },
+        type: ['credit_card'],
+        currency: ['foreign']
+      }
+    ]
   },
   client: (state) => {
     return {
@@ -70,17 +121,6 @@ const getters = {
       .filter({ hidden: false })
       .value();
   },
-  shouldRequestPayerInfo: (state) => {
-    return (
-      !state.payment.firstName ||
-      !state.payment.lastName ||
-      !state.payment.email ||
-      !state.payment.phone ||
-      !state.payment.address ||
-      !state.payment.city ||
-      !state.payment.country
-    );
-  },
   canPay: (state) => {
     return !state.ui.isLoading && state.ui.configErrors.length === 0;
   },
@@ -94,6 +134,9 @@ const getters = {
 };
 
 const mutations = {
+  SET_SELECTED_METHOD(state, payload) {
+    state.selectedMethod = payload;
+  },
   UI_START_LOADING(state) {
     state.ui.isLoading = true;
   },
@@ -122,9 +165,9 @@ const mutations = {
     state.payment.address = payload.address;
     state.payment.city = payload.city;
     state.payment.country = payload.country;
-    state.payment.callbackUrl = payload.callbackUrl;
     state.payment.callbackId = payload.callbackId;
     state.payment.parameters = payload.parameters;
+    state.payment.charges = payload.a;
     if (payload.payoutCode) {
       state.payment.payables = [
         {
@@ -151,8 +194,9 @@ const mutations = {
 const actions = {
   load: ({ commit }) => {
     commit("UI_START_LOADING");
-    let { amount, firstName, lastName, email, phone, address, city, country, env = "demo", code, callbackUrl, callbackId, title, subTitle, payoutCode, payoutAmount, ...params } = utils.getQueryStringValues();
+    let { amount, firstName, lastName, email, phone, address, city, country, env = "prod", code, title, subTitle, payoutCode, payoutAmount, a, ...params } = utils.getQueryStringValues();
 
+    let callbackId = utils.getCallbackId();
     function addConfigErrorIf(fn, message) {
       if (fn()) {
         commit("UI_ADD_CONFIG_ERROR", { error: message });
@@ -163,12 +207,11 @@ const actions = {
     addConfigErrorIf(() => code && code.length !== 3, `Invalid code (${code}) - must be 3 letters.`);
     addConfigErrorIf(() => !amount, "Payment amount not supplied");
     addConfigErrorIf(() => amount && (isNaN(amount) || parseFloat(amount) <= 0), `Invalid payment amount (${amount})`);
-    addConfigErrorIf(() => callbackUrl && !callbackId, `Must supply a callbackId when supplying a callbackUrl.`);
     addConfigErrorIf(() => payoutCode && payoutCode.length !== 3, `Invalid payout code (${payoutCode}) - must be 3 letters.`);
     addConfigErrorIf(() => payoutCode && !payoutAmount, `Must supply a payoutAmount when supplying a payoutCode.`);
     addConfigErrorIf(() => payoutAmount && (isNaN(payoutAmount) || parseFloat(payoutAmount) <= 0), `Invalid payout amount (${payoutAmount})`);
 
-    commit("PAYMENT_INIT", { amount: parseFloat(amount), firstName, lastName, email, phone, address, city, country, callbackUrl, callbackId, payoutCode, payoutAmount: parseFloat(payoutAmount), parameters: params });
+    commit("PAYMENT_INIT", { amount: parseFloat(amount), firstName, lastName, callbackId, email, phone, address, city, country, payoutCode, payoutAmount: parseFloat(payoutAmount), a, parameters: params });
     commit("UI_INIT", { title, subTitle });
 
     const recipientPromise = dataService.getRecipient(code, env);
@@ -184,6 +227,9 @@ const actions = {
     commit("UI_ADD_PAYMENT_ERRORS", {
       errors: value,
     });
+  },
+  setSelectedMethod: ({ commit }, value) => {
+    commit("SET_SELECTED_METHOD", value);
   },
   pay: ({ commit }) => {
     commit("UI_CLEAR_ERRORS");

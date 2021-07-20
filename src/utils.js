@@ -14,8 +14,15 @@ export default {
         }
 
         return (ccy.symbol_first === true)
-            ? (ccy.symbol || ccy.code) + amount.toLocaleString(undefined, options)
+            ? (ccy.symbol || ccy.code) + amount.toLocaleString(undefined, options) + ` ` + ccy.code
             : amount.toLocaleString(undefined, options) + (ccy.symbol || ccy.code);
+    },
+    getCallbackId: function () {
+        let url = _.chain(window.location.search)
+            .replace('?', '')    
+            .value()
+        const encoded = encodeURI(url)
+        return encoded
     },
     getQueryStringValues: function () {
         let values = {};
@@ -23,11 +30,30 @@ export default {
         _.chain(window.location.search)
             .replace('?', '')
             .split('&')
-            .forEach(kvp => {
-                var s = _.split(kvp, "=");
-                values[s[0]] = decodeURIComponent(s[1]);
-            })
+            .forEach(param => {
+                let kvp = param.split("=");
+                let key = kvp[0];
+                let value = decodeURIComponent(kvp[1]);
+                let openBrace = key.indexOf("[");
+                let closeBrace = key.indexOf("]");
+                if (openBrace > 0) {
+                    const trimmedKey = key.substring(0, openBrace);
+                    if (values.hasOwnProperty(trimmedKey) === false) {
+                    values[trimmedKey] = {};
+                    }
+                    const nestedKey = key.substring(openBrace + 1, closeBrace);
+                    values[trimmedKey][nestedKey] = value;
+                } else {
+                    values[key] = value;
+                }
+                })       
             .value();
+
+        let sum = 0;
+        for (const prop in values.a) {
+            sum += parseFloat(values.a[prop], 10);
+        }
+        values["amount"] = sum         
 
         return values;
     }
