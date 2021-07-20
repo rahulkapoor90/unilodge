@@ -11,7 +11,7 @@
                 <div v-if="selectedMethod" class="payment-info">
                     <h3>
                       <small>Please pay</small>
-                      {{ selectedMethod.value.total.formatted }}
+                      {{ selectedMethod.value.total.formatted }} {{ portal.recipient.currency.code }}
                     </h3>
                 </div>
                 <div v-if="ui.configErrors.length > 0 || ui.paymentErrors.length > 0" class="errors">
@@ -24,14 +24,21 @@
                 </div>
                 <div>
                 </div>
-                <div v-if="portal" class="payment-method">
+                <div v-if="paymentMethods" class="payment-method">
                     <h3>
                       <small>Select your payment method:</small>
                     </h3>
-                    <div v-for="paymentMethod in paymentMethods" :key="paymentMethod.description" class="form-check">
-                        <input  v-model="selectedMethod" class="form-check-input" :value="paymentMethod" type="radio">
-                        <label class="form-check-label">
-                            {{ paymentMethod.description }}    
+                    <div v-for="paymentMethod in paymentMethods" :key="paymentMethod.description.title" class="list-group">
+                        <label class="list-group-item d-flex align-items-center">
+                            <input v-model="selectedMethod" :value="paymentMethod" type="radio" class="col-1">
+                            <div class="description col-8">
+                                <p class="mb-1">{{ paymentMethod.description.title }}</p>
+                                <small class="mb-1">{{ paymentMethod.description.sub }}</small>
+                            </div>
+                            <div class="amount col-3">
+                                <p>{{ paymentMethod.value.total.formatted }} {{ portal.recipient.currency.code }}</p>
+                                <span v-if="paymentMethod.value.processing.amount > 0" class="badge badge-light">includes a {{ paymentMethod.value.processing.formatted }} fee</span>
+                            </div>
                         </label>
                     </div>
                 </div>
@@ -110,7 +117,7 @@ export default {
           country: this.payment.country,
 
           callbackUrl: "https://hooks.zapier.com/hooks/catch/5305195/borwi0j/",
-          callbackId: this.payment.callbackId + `&a[29]=` + this.selectedMethod.value.processing.amount,
+          callbackId: `${this.payment.callbackId}&a[29]=${this.selectedMethod.value.processing.amount}`,
 
           paymentOptionsConfig: {
               filters: {
@@ -144,7 +151,7 @@ export default {
 
 <style lang="scss">
     .quick-pay {
-        width: 400px;
+        width: 700px;
         margin: 50px auto;
 
         .card-body {
@@ -161,7 +168,6 @@ export default {
         margin-top: 8px;
     }
     
-
     .payment-info{ 
         background-color: #1274C4;
         color: white;
@@ -172,6 +178,14 @@ export default {
     .payment-method{ 
         margin: 20px;
         padding: 5px 0;
+    }
+
+    .description{
+        text-align: left;
+    }
+
+    .amount{
+        text-align: center;
     }
 
     .form-check{
@@ -188,7 +202,6 @@ export default {
             display: block;
         }
     }
-
     
 </style>
 
