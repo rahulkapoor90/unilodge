@@ -1,8 +1,6 @@
 <template>
     <div class="complete">
         <div class="card text-center">
-            <div class="card-header">
-            </div>
             <div class="card-body">
                 <img v-if="client.logo" :src="client.logo" :alt="client.name" />
                 <h4>{{ ui.title }}
@@ -68,7 +66,7 @@ export default {
 
 <style lang="scss">
     .complete {
-        width: 400px;
+        max-width: 700px;
         margin: 50px auto;
 
         .card-body {

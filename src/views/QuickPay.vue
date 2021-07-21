@@ -1,13 +1,14 @@
 <template>
     <div class="quick-pay">
         <div class="card text-center">
-            <div class="card-header">
-            </div>
             <div class="card-body">
                 <img v-if="client.logo" :src="client.logo" :alt="client.name" />
                 <h4>{{ ui.title }}
                   <small class="text-muted">{{ ui.subTitle }}</small>
                 </h4>
+                <div v-if="ui.isLoading" class="spinner-border">
+                    <span class="sr-only">Loading...</span>
+                </div>
                 <div v-if="selectedMethod" class="payment-info">
                     <h3>
                       <small>Please pay</small>
@@ -22,22 +23,24 @@
                         <span :key="e.id">{{ e.msg }}</span>
                     </template>
                 </div>
-                <div>
-                </div>
-                <div v-if="paymentMethods" class="payment-method">
-                    <h3>
+                <div v-if="paymentMethods.length > 0" class="payment-method">
+                    <h3 class="payment-select">
                       <small>Select your payment method:</small>
                     </h3>
                     <div v-for="paymentMethod in paymentMethods" :key="paymentMethod.description.title" class="list-group">
-                        <label class="list-group-item d-flex align-items-center">
-                            <input v-model="selectedMethod" :value="paymentMethod" type="radio" class="col-1">
-                            <div class="description col-8">
-                                <p class="mb-1">{{ paymentMethod.description.title }}</p>
-                                <small class="mb-1">{{ paymentMethod.description.sub }}</small>
-                            </div>
-                            <div class="amount col-3">
-                                <p>{{ paymentMethod.value.total.formatted }} {{ portal.recipient.currency.code }}</p>
-                                <span v-if="paymentMethod.value.processing.amount > 0" class="badge badge-light">includes a {{ paymentMethod.value.processing.formatted }} fee</span>
+                        <label class="list-group-item">
+                            <div class="d-flex align-items-center justify-content-between payment-methods">
+                                <div>
+                                    <input v-model="selectedMethod" :value="paymentMethod" type="radio">
+                                </div>
+                                <div class="description">
+                                    <p class="mb-1">{{ paymentMethod.description.title }}</p>
+                                    <small class="mb-1">{{ paymentMethod.description.sub }}</small>
+                                </div>
+                                <div class="amount">
+                                    <p>{{ paymentMethod.value.total.formatted }} {{ portal.recipient.currency.code }}</p>
+                                    <span v-if="paymentMethod.value.processing.amount > 0" class="badge badge-light">includes a {{ paymentMethod.value.processing.formatted }} fee</span>
+                                </div>
                             </div>
                         </label>
                     </div>
@@ -74,11 +77,10 @@ export default {
           selectedMethod: 'selectedMethod'
         }),
         ...mapGetters([
-        //   'formattedAmount',
           'paymentMethods',
           'client',
           'displayParameters',
-          'canPay',
+          'canPay'
        ]),
        selectedMethod: {
            get() {
@@ -125,21 +127,13 @@ export default {
                   currency: this.selectedMethod.currency
               }
           },
-
           onInvalidInput: (errs) => {
             that.$store.dispatch('paymentSetErrors', errs)
           },
           onCompleteCallback: (args) => {
-            // eslint-disable-next-line no-console
-            console.log(args);
             that.$store.dispatch('complete', args);
             that.$router.push('complete');
-          },
-          onCancel: () => {
-              // eslint-disable-next-line no-console
-              console.info("Payment window cancelled");
-          },
-          payables: this.payment.payables
+          }
         }
 
         popup = window.FlywirePayment.initiate(config);
@@ -151,7 +145,7 @@ export default {
 
 <style lang="scss">
     .quick-pay {
-        width: 700px;
+        max-width: 700px;
         margin: 50px auto;
 
         .card-body {
@@ -175,9 +169,17 @@ export default {
         padding: 5px 0;
     }
 
+    .payment-select {
+        margin: 10px 0;
+    }
+
     .payment-method{ 
-        margin: 20px;
+        margin: 0px;
         padding: 5px 0;
+
+        .payment-methods>div {
+            padding:5px;
+        }
     }
 
     .description{
@@ -185,7 +187,8 @@ export default {
     }
 
     .amount{
-        text-align: center;
+        text-align: right;
+        white-space: nowrap;
     }
 
     .form-check{
@@ -201,6 +204,10 @@ export default {
         span {
             display: block;
         }
+    }
+
+    .spinner-border {
+        margin:10px;
     }
     
 </style>

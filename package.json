@@ -10,24 +10,24 @@
   "dependencies": {
     "bootstrap": "^4.4.1",
     "bootstrap-vue": "^2.4.0",
-    "core-js": "^3.6.4",
-    "jsrsasign": "^8.0.12",
-    "lodash": "^4.17.15",
+    "core-js": "^3.15.2",
+    "jsrsasign": "^10.3.0",
+    "lodash": "^4.17.21",
     "v-money": "^0.8.1",
-    "vue": "^2.6.11",
-    "vue-router": "^3.1.5",
-    "vuex": "^3.1.2"
+    "vue": "^2.6.14",
+    "vue-router": "^3.5.2",
+    "vuex": "^3.6.2"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.1.2",
-    "@vue/cli-plugin-eslint": "^4.1.2",
-    "@vue/cli-service": "^4.1.2",
-    "babel-eslint": "^10.0.3",
+    "@vue/cli-plugin-babel": "^4.5.13",
+    "@vue/cli-plugin-eslint": "^4.5.13",
+    "@vue/cli-service": "^4.5.13",
+    "babel-eslint": "^10.1.0",
     "eslint": "^5.16.0",
     "eslint-plugin-vue": "^5.0.0",
-    "sass": "^1.25.0",
+    "sass": "^1.35.2",
     "sass-loader": "^8.0.2",
-    "vue-template-compiler": "^2.6.11"
+    "vue-template-compiler": "^2.6.14"
   },
   "description": "Usage:  https://flywire-solutions.github.io/quick-pay/",
   "main": ".eslintrc.js",
