@@ -44,17 +44,16 @@ const initialState = {
 };
 
 const getters = {
-  // formattedAmount: (state) => {
-  //   return utils.formatAmount(
-  //     state.payment.amount,
-  //     state.portal.recipient.currency
-  //   );
-  // },
   paymentMethods: (state) => {
+    if (!(state.portal && state.payment))
+      return []
+
     return [
       {
-        description: "Pay in your Local Currency",
-        value: {
+        description: {
+          title: "Pay in your local currency",
+          sub: "Make an international payment in your home currency."
+        },        value: {
           total: {
             amount: state.payment.amount,
             formatted: utils.formatAmount(state.payment.amount, state.portal.recipient.currency),
@@ -68,7 +67,10 @@ const getters = {
         currency: ['local']
       },
       {
-        description: "Domestic " + state.portal.recipient.currency.code + " Bank Transfer",
+        description: {
+          title: "Domestic " + state.portal.recipient.currency.code + " Bank Transfer",
+          sub: "Make a bank transfer payment with your domestic New Zealand bank account."
+        },
         value: {
           total: {
             amount: state.payment.amount + 0.70,
@@ -83,7 +85,10 @@ const getters = {
         currency: ['foreign']
       },
       {
-        description: "Domestic " + state.portal.recipient.currency.code  + " Credit Card",
+        description: {
+          title: "Domestic " + state.portal.recipient.currency.code  + " Credit Card",
+          sub: "Make a bank transfer payment with your domestic New Zealand credit card."
+        },
         value: {
           total: {
             amount: state.payment.amount / 97.25 * 100,
@@ -121,8 +126,11 @@ const getters = {
       .filter({ hidden: false })
       .value();
   },
-  canPay: (state) => {
-    return !state.ui.isLoading && state.ui.configErrors.length === 0;
+  canPay: (state, getters) => {
+    return !state.ui.isLoading 
+      && state.ui.configErrors.length === 0
+      && getters.paymentMethods
+      && getters.paymentMethods.length > 0;
   },
   isError: (state) => {
     return (
@@ -192,7 +200,7 @@ const mutations = {
 };
 
 const actions = {
-  load: ({ commit }) => {
+  load: ({ commit, getters }) => {
     commit("UI_START_LOADING");
     let { amount, firstName, lastName, email, phone, address, city, country, env = "prod", code, title, subTitle, payoutCode, payoutAmount, a, ...params } = utils.getQueryStringValues();
 
@@ -220,6 +228,7 @@ const actions = {
       addConfigErrorIf(() => !values[0].id, `Client not found (${code})`);
 
       commit("PORTAL_INIT", { env, portalCode: code, recipient: values[0] });
+      commit("SET_SELECTED_METHOD", getters.paymentMethods[0]);
       commit("UI_STOP_LOADING");
     });
   },

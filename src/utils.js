@@ -14,7 +14,7 @@ export default {
         }
 
         return (ccy.symbol_first === true)
-            ? (ccy.symbol || ccy.code) + amount.toLocaleString(undefined, options) + ` ` + ccy.code
+            ? (ccy.symbol || ccy.code) + amount.toLocaleString(undefined, options)
             : amount.toLocaleString(undefined, options) + (ccy.symbol || ccy.code);
     },
     getCallbackId: function () {
