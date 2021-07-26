@@ -72,7 +72,7 @@ const getters = {
       {
         description: {
           title: "Domestic " + state.portal.recipient.currency.code  + " Credit Card",
-          sub: "Make an immeidate payment with your domestic New Zealand issued credit card."
+          sub: "Make an immediate payment with your domestic New Zealand issued credit card."
         },
         value: utils.getAmount(state.payment.amount, 2.75, state.portal.recipient.currency, '*'),   
         type: ['credit_card'],
