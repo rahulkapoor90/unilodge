@@ -1,21 +1,41 @@
 import _ from 'lodash'
 
 export default {
-    formatAmount: function (amount, ccy) {
-        if (!ccy || isNaN(amount)) {
+    getAmount: function (value, fee, ccy, operator) {
+        if (!ccy || isNaN(value) ||  isNaN(fee)) {
             return null;
         }
-
         const numberOfDecimalPlaces = Math.log(ccy.subunit_to_unit) / Math.log(10);
-
         const options = {
             minimumFractionDigits: numberOfDecimalPlaces,
             maximumFractionDigits: numberOfDecimalPlaces
         }
 
-        return (ccy.symbol_first === true)
-            ? (ccy.symbol || ccy.code) + amount.toLocaleString(undefined, options)
-            : amount.toLocaleString(undefined, options) + (ccy.symbol || ccy.code);
+        let values = {};
+
+        if (operator == "+") {
+            values["unformatted"] = {
+                total: (value + fee).toLocaleString(undefined, options),
+                fee: fee.toLocaleString(undefined, options)
+            };
+        } else if (operator == "*") {
+            values["unformatted"] = {
+                total: (value / (100 - fee) * 100).toLocaleString(undefined, options),
+                fee: ((value / (100 - fee) * 100) - value).toLocaleString(undefined, options)
+            }
+        }
+        if (ccy.symbol_first === true) {
+            values["formatted"] = {
+                total: (ccy.symbol || ccy.code) + values.unformatted.total,
+                fee: (ccy.symbol || ccy.code) + values.unformatted.fee
+            };        
+        } else {
+            values["formatted"] ={
+                total: values.unformatted.total + (ccy.symbol || ccy.code),
+                fee: values.unformatted.fee + (ccy.symbol || ccy.code)
+            };
+        }
+        return values
     },
     getCallbackId: function () {
         let url = _.chain(window.location.search)

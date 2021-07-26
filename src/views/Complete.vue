@@ -9,7 +9,7 @@
                 <div v-if="selectedMethod" class="payment-info" :class="result.status">
                     <h3>
                       <small>Your payment for</small>
-                      {{ selectedMethod.value.total.formatted }}
+                      {{ selectedMethod.value.formatted.total }}
                       <small v-if="result.status==='success'">was successful!</small>
                       <small v-else-if="result.status==='pending'">must now be sent to Flywire</small>
                       <small v-else>was unsucessful!</small>
@@ -27,10 +27,6 @@
                         </dl>
                     </li>
                 </ul>
-            </div>
-            <div class="card-footer">
-                <button v-if="isError" class="btn btn-primary" v-on:click="onRetry">Try Again</button>
-                <img v-else src="@/assets/flywire.png" height="20px"/>
             </div>
         </div>
     </div>
@@ -50,7 +46,6 @@ export default {
 
         }),
         ...mapGetters([
-          'formattedAmount',
           'client',
           'displayParameters',
           'isError'

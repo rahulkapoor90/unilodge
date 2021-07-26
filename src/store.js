@@ -54,17 +54,9 @@ const getters = {
       {
         description: {
           title: "Pay in your local currency",
-          sub: "Make an international payment in your home currency."
-        },        value: {
-          total: {
-            amount: state.payment.amount,
-            formatted: utils.formatAmount(state.payment.amount, state.portal.recipient.currency),
-          },
-          processing: {
-            amount: 0,
-            formatted: null,
-          }
+          sub: "Make an international payment in your home currency with a variety of methods to choose from."
         },
+        value: utils.getAmount(state.payment.amount, 0, state.portal.recipient.currency, '+'),     
         type: ['online', 'credit_card', 'bank_transfer'],
         currency: ['local']
       },
@@ -73,34 +65,16 @@ const getters = {
           title: "Domestic " + state.portal.recipient.currency.code + " Bank Transfer",
           sub: "Make a bank transfer payment with your domestic New Zealand bank account."
         },
-        value: {
-          total: {
-            amount: state.payment.amount + 0.70,
-            formatted: utils.formatAmount(state.payment.amount + 0.70, state.portal.recipient.currency),
-          },
-          processing: {
-            amount: 0.70,
-            formatted: utils.formatAmount(0.70, state.portal.recipient.currency),
-          }
-        },
+        value: utils.getAmount(state.payment.amount, 0.70, state.portal.recipient.currency, '+'),   
         type: ['bank_transfer'],
         currency: ['foreign']
       },
       {
         description: {
           title: "Domestic " + state.portal.recipient.currency.code  + " Credit Card",
-          sub: "Make a bank transfer payment with your domestic New Zealand credit card."
+          sub: "Make an immeidate payment with your domestic New Zealand issued credit card."
         },
-        value: {
-          total: {
-            amount: state.payment.amount / 97.25 * 100,
-            formatted: utils.formatAmount(state.payment.amount / 97.25 * 100, state.portal.recipient.currency),
-          },
-          processing: {
-            amount: (state.payment.amount / 97.25 * 100) - state.payment.amount,
-            formatted: utils.formatAmount((state.payment.amount / 97.25 * 100) - state.payment.amount, state.portal.recipient.currency),
-          }
-        },
+        value: utils.getAmount(state.payment.amount, 2.75, state.portal.recipient.currency, '*'),   
         type: ['credit_card'],
         currency: ['foreign']
       }

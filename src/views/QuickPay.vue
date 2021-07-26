@@ -12,7 +12,7 @@
                 <div v-if="selectedMethod" class="payment-info">
                     <h3>
                       <small>Please pay</small>
-                      {{ selectedMethod.value.total.formatted }} {{ portal.recipient.currency.code }}
+                      {{ selectedMethod.value.formatted.total }} {{ portal.recipient.currency.code }}
                     </h3>
                 </div>
                 <div v-if="ui.configErrors.length > 0 || ui.paymentErrors.length > 0" class="errors">
@@ -29,17 +29,17 @@
                     </h3>
                     <div v-for="paymentMethod in paymentMethods" :key="paymentMethod.description.title" class="list-group">
                         <label class="list-group-item">
-                            <div class="d-flex align-items-center justify-content-between payment-methods">
-                                <div>
+                            <div class="d-flex align-items-center payment-methods">
+                                <div class="col-1">
                                     <input v-model="selectedMethod" :value="paymentMethod" type="radio">
                                 </div>
                                 <div class="description">
                                     <p class="mb-1">{{ paymentMethod.description.title }}</p>
                                     <small class="mb-1">{{ paymentMethod.description.sub }}</small>
                                 </div>
-                                <div class="amount">
-                                    <p>{{ paymentMethod.value.total.formatted }} {{ portal.recipient.currency.code }}</p>
-                                    <span v-if="paymentMethod.value.processing.amount > 0" class="badge badge-light">includes a {{ paymentMethod.value.processing.formatted }} fee</span>
+                                <div class="ml-auto amount">
+                                    <p>{{ paymentMethod.value.formatted.total }} {{ portal.recipient.currency.code }}</p>
+                                    <span v-if="paymentMethod.value.unformatted.fee > 0" class="badge badge-light font-weight-normal">includes a {{ paymentMethod.value.formatted.fee }} fee</span>
                                 </div>
                             </div>
                         </label>
@@ -104,7 +104,7 @@ export default {
         const config = {
           env: this.portal.env,
           recipientCode: this.portal.portalCode,
-          amount: this.selectedMethod.value.total.amount,
+          amount: this.selectedMethod.value.unformatted.total,
           recipientFields: this.payment.parameters,
           requestPayerInfo: true,
           requestRecipientInfo: true,
@@ -119,7 +119,7 @@ export default {
           country: this.payment.country,
 
           callbackUrl: "https://hooks.zapier.com/hooks/catch/5305195/borwi0j/",
-          callbackId: `${this.payment.callbackId}&a[29]=${this.selectedMethod.value.processing.amount}`,
+          callbackId: `${this.payment.callbackId}&a%5B29%5D=${this.selectedMethod.value.unformatted.fee}`,
 
           paymentOptionsConfig: {
               filters: {
@@ -175,7 +175,7 @@ export default {
 
     .payment-method{ 
         margin: 0px;
-        padding: 5px 0;
+        padding: 20px 0;
 
         .payment-methods>div {
             padding:5px;
